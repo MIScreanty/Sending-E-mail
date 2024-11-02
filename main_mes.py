@@ -2,6 +2,7 @@ import smtplib
 from email.message import EmailMessage
 from tkinter import *
 from tkinter import messagebox as mb
+from email.utils import parseaddr
 
 # password = "zjxesqwjmakjeflm"
 # from_email = "MIScreanty@yandex.ru"
@@ -15,6 +16,17 @@ from tkinter import messagebox as mb
 # message["To"] = to_email
 #
 # print(message)
+
+# def validate_email(email):
+#     """ Проверка email на соответствие стандартному формату. """
+#     name, addr = parseaddr(email)
+#     return '@' in addr and '.' in addr.split('@')[-1]
+
+def valid_email(mail):
+    if len(mail) > 5 and "." in mail.split("@")[-1] and mail.count("@") == 1:
+        return True
+    else:
+        return False
 
 
 def save():
@@ -34,10 +46,20 @@ def load():
         pass
 
 def send_message():
-    save()
+
     password = pass_entry.get()
     from_email = from_email_entry.get()
+    if not valid_email(from_email):
+        mb.showerror(title="Ошибка", message="Неверный email отправителя")
+        return
+
     to_email = to_email_entry.get()
+    if not valid_email(to_email):
+        mb.showerror(title="Ошибка", message="Неверный email получателя")
+        return
+    # сохраняем после проверки
+    save()
+
     title_message = subject_entry.get()
     text_message = message_entry.get(1.0, END)
 
@@ -63,7 +85,7 @@ def send_message():
 
 window = Tk()
 window.title("Отправка сообщений")
-window.geometry("600x420")
+window.geometry("600x450")
 
 text_from = Label(window, text="Отправитель:", font=("Arial", 16))
 text_from.grid(row=0, column=0, pady=10)
@@ -94,5 +116,8 @@ load()
 
 btn = Button(window, text="Отправить", font=("Arial", 16), command=send_message)
 btn.grid(row=5, column=1)
+
+result_label = Label(text="")
+result_label.grid(row=6, column=1, sticky=W)
 
 window.mainloop()
